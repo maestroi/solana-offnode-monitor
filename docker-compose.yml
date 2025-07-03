@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SOLANA_RPC_ENDPOINT=https://api.mainnet-beta.solana.com
+      - VALIDATOR_IDENTITIES=FQwewNXahV7MiZcLpY6p1xhUs2acVGQ3U5Xxc7FzV571,F6NegvXJ1J6D4sp59vWG51TEuzJ4kMmW9euXvKe8Mxsj
+      - POLL_INTERVAL=30s
+      - LISTEN_ADDR=:8080
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - app
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning 
